@@ -2,52 +2,37 @@
   <Main>
     <div class="container">
       <div>
-        <p>{{ test }}</p>
-        <p>{{ calcResult }}</p>
         <Logo />
-        <h1 class="title">nuxt-ts</h1>
-        <h2 class="subtitle">My astounding Nuxt.js project</h2>
-        <div class="links">
-          <a href="https://nuxtjs.org/" target="_blank" class="button--green"
-            >Documentation</a
-          >
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            class="button--grey"
-            >GitHub</a
-          >
-        </div>
       </div>
+    </div>
+    <div class="todo-list-wrapper">
+      <todo-list />
     </div>
   </Main>
 </template>
 
-<script lang="ts">
+<script>
 import { Vue, Component } from 'vue-property-decorator'
 
 // @ts-ignore
 import Logo from '../components/Logo.vue'
-// @ts-ignore
-import Header from '../components/header/Index.vue'
-// @ts-ignore
-import Footer from '../components/Footer.vue'
 
 // @ts-ignore
 import Main from '../components/Main.vue'
 
+import TodoList from '../components/todo-list/Index.vue'
+
 @Component({
   components: {
     Logo,
-    Header,
-    Footer,
-    Main
+    Main,
+    'todo-list': TodoList
   }
 })
 class Index extends Vue {
-  test: string = 'hello'
+  test = 'hello'
 
-  get calcResult(): number {
+  get calcResult() {
     return 1 + 1
   }
 }
@@ -85,5 +70,10 @@ export default Index
 
 .links {
   padding-top: 15px;
+}
+
+.todo-list-wrapper {
+  max-width: 1000px;
+  padding: 0 8px;
 }
 </style>
