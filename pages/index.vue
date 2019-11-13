@@ -1,10 +1,5 @@
 <template>
   <Main>
-    <div class="container">
-      <div>
-        <Logo />
-      </div>
-    </div>
     <div class="todo-list-wrapper">
       <todo-list />
     </div>
@@ -73,6 +68,7 @@ export default Index
 }
 
 .todo-list-wrapper {
+  margin: auto;
   max-width: 1000px;
   padding: 0 8px;
 }
