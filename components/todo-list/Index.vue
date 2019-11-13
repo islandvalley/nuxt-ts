@@ -1,19 +1,43 @@
 <template>
-  <div>
-    <h3>Todo List</h3>
-    <ul class="todo-list">
-      <li v-for="(todoItem, key) in todoList" :key="key" class="todo-item">
-        <div>
-          {{ todoItem.name }}
-        </div>
-        <button type="button" @click="updateTodo(todoItem.id)">
-          更新する
-        </button>
-        <button type="button" @click="removeTodo(todoItem.id)">
-          削除する
-        </button>
-      </li>
-    </ul>
+  <div class="todo-wrapper">
+    <h3>完了したTodo</h3>
+    <div>
+      <ul v-if="Object.keys(todo.complete).length > 0" class="todo-list">
+        <li v-for="(todo, key) in todo.complete" :key="key" class="todo-item">
+          <div>
+            {{ todo.name }}
+          </div>
+          <div class="buttons-wrapper">
+            <button type="button" @click="cancelComletedTodo(todo)">
+              未完了にする
+            </button>
+          </div>
+        </li>
+      </ul>
+      <div v-else>完了したTodoはありません</div>
+    </div>
+    <h3>Todo</h3>
+    <div>
+      <ul v-if="Object.keys(todo.wip).length > 0" class="todo-list">
+        <li v-for="(todo, key) in todo.wip" :key="key" class="todo-item">
+          <div>
+            {{ todo.name }}
+          </div>
+          <div class="buttons-wrapper">
+            <button type="button" @click="completeTodo(todo)">
+              完了する
+            </button>
+            <button type="button" @click="updateTodo(todo.id)">
+              更新する
+            </button>
+            <button type="button" @click="removeTodo(todo.id)">
+              削除する
+            </button>
+          </div>
+        </li>
+      </ul>
+      <div v-else>Todoはありません</div>
+    </div>
     <h3>新規登録</h3>
     <input
       v-model="todoInput"
@@ -26,33 +50,59 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Todo } from '../../typings/todo'
 
-const getNextKey = (todoList: any) => {
+const getNextKey = (todoList: any): number => {
   const keys: number[] = Object.keys(todoList).map((key: string) =>
     parseInt(key)
   )
-  const nextKey: number = Math.max(...keys) + 1
 
-  return nextKey
+  return Math.max(...keys) + 1
 }
 
 @Component
 class TodoList extends Vue {
-  todoList: any = {
-    1: { id: 1, name: '洗濯する' },
-    2: { id: 2, name: '掃除する' },
-    3: { id: 3, name: '料理する' }
+  todo: { [K: string]: Todo[] | any } = {
+    complete: {},
+    wip: {
+      1: { id: 1, name: '洗濯する' },
+      2: { id: 2, name: '掃除する' },
+      3: { id: 3, name: '料理する' }
+    }
   }
+
+  @Prop({ type: String, required: true })
   todoInput: string = ''
 
   mounted() {
     console.log('mounted!')
   }
 
+  cancelComletedTodo(todo: Todo): void {
+    const { id, name } = todo
+    this.todo.wip[id] = {
+      id,
+      name
+    }
+
+    this.$delete(this.todo.complete, id)
+  }
+
+  completeTodo(todo: Todo): void {
+    const { id, name } = todo
+    this.todo.complete[id] = {
+      id,
+      name
+    }
+    console.log(this.todo.complete)
+
+    this.$delete(this.todo.wip, id)
+  }
+
   addTodo(): void {
-    const nextKey: number = getNextKey(this.todoList)
-    this.todoList[nextKey] = {
+    const nextKey: number = getNextKey(this.todo.wip)
+    this.todo.wip[nextKey] = {
       id: nextKey,
       name: this.todoInput
     }
@@ -68,8 +118,8 @@ class TodoList extends Vue {
       return
     }
 
-    this.$delete(this.todoList, id)
-    this.todoList[id] = {
+    this.$delete(this.todo.wip, id)
+    this.todo.wip[id] = {
       id,
       name: newTodo
     }
@@ -80,9 +130,9 @@ class TodoList extends Vue {
   // Todoの削除
   removeTodo(id: number) {
     if (
-      window.confirm(`"${this.todoList[id].name}"を削除してよろしいですか？`)
+      window.confirm(`"${this.todo.wip[id].name}"を削除してよろしいですか？`)
     ) {
-      this.$delete(this.todoList, id)
+      this.$delete(this.todo.wip, id)
       window.alert('削除されました')
     }
   }
@@ -92,6 +142,11 @@ export default TodoList
 </script>
 
 <style scoped>
+.todo-wrapper {
+  min-height: calc(100vh - 96px);
+  padding: 20px 0;
+}
+
 .todo-list {
   padding: 0;
 }
@@ -111,5 +166,8 @@ export default TodoList
   border-radius: 4px;
   list-style-type: none;
   padding: 8px;
+}
+
+.buttons-wrapper {
 }
 </style>
